@@ -525,7 +525,9 @@ def update_order_status(
     order_id: int,
     new_status: str,
     current_user: models.User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    skip: int = 0,
+    limit: int = 20
 ):
     order = db.query(models.Order).filter(models.Order.id == order_id).first()
     if not order:
