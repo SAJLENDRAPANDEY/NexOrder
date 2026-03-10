@@ -36,7 +36,11 @@ if not RAZORPAY_KEY or not RAZORPAY_SECRET:
     # warnings can be printed but not raise
     print("Warning: razorpay credentials missing in .env")
 
-razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY, RAZORPAY_SECRET))
+razorpay_client = None
+if RAZORPAY_KEY and RAZORPAY_SECRET:
+    razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY, RAZORPAY_SECRET))
+else:
+    print("Warning: Razorpay credentials missing")
 
 
 # ===============================
