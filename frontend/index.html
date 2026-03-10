@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>ProductOS</title>
+<title>Nexship</title>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -41,7 +41,7 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'DM Sans
 .hero-orb{position:absolute;border-radius:50%;pointer-events:none;animation:float 6s ease infinite}
 .hero-badge{display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border-radius:20px;background:rgba(124,106,247,0.12);border:1px solid rgba(124,106,247,0.25);color:#a78bfa;font-size:12px;font-weight:600;letter-spacing:.08em;margin-bottom:28px}
 .hero-dot{width:6px;height:6px;border-radius:50%;background:var(--violet);box-shadow:0 0 8px var(--violet);animation:blink 2s ease infinite}
-.hero-title{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(40px,7vw,84px);font-weight:800;letter-spacing:-.04em;line-height:1.05;margin-bottom:24px;max-width:900px}
+.hero-title{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(24px,4vw,65px);font-weight:800;letter-spacing:-.04em;line-height:1.05;margin-bottom:24px;max-width:900px}
 .gradient-text{background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .hero-sub{font-size:clamp(16px,2vw,20px);color:var(--ink2);max-width:560px;line-height:1.65;margin-bottom:40px}
 .hero-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
@@ -243,6 +243,8 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'DM Sans
 
 .skeleton{background:linear-gradient(90deg,var(--bg3) 25%,var(--bg4) 50%,var(--bg3) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px}
 </style>
+<!-- Razorpay checkout library -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
 
@@ -252,15 +254,12 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'DM Sans
 <div id="landing-page" class="page active">
   <nav class="navbar" id="main-navbar">
     <div class="nav-logo" onclick="showPage('landing')">
-      <div class="nav-logo-mark">P</div>
-      Product<span style="color:var(--violet)">OS</span>
+     
+      <div class="sidebar-logo-text" style="font-size:20px">Nex<span style="color:#7c6af7">ship</span></div>
     </div>
-    <div class="nav-links">
-      <button class="nav-link">Platform</button>
-      <button class="nav-link">Pricing</button>
-      <button class="nav-link">Resources</button>
-      <button class="nav-link">Docs</button>
-    </div>
+    <div style="position:absolute;left:50%;transform:translateX(-50%);font-size:14px;color:var(--ink2)">
+ 
+</div>
     <div class="nav-right">
       <button class="btn btn-ghost btn-sm" onclick="showPage('login')">Sign In</button>
       <button class="btn btn-primary btn-sm" onclick="showPage('register')">Get Started →</button>
@@ -273,26 +272,32 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'DM Sans
 
     <div class="hero-badge anim-rise">
       <span class="hero-dot"></span>
-      Now in Public Beta
+      Nexship is Now Live
     </div>
     <h1 class="hero-title anim-rise-1">
-      The modern stack for<br>
-      <span class="gradient-text">product teams that ship.</span>
+      Order in seconds<br>
+      <span class="gradient-text">Track instantly Manage everything in one place with Nexship</span>
     </h1>
     <p class="hero-sub anim-rise-2">
-      ProductOS gives your team a single source of truth for inventory, orders,
-      and wallet management — beautifully designed and blazingly fast.
+     Run your operations smarter with Nexship — manage inventory, orders, and payments from one powerful dashboard
     </p>
     <div class="hero-btns anim-rise-3">
       <button class="btn btn-primary btn-lg" onclick="showPage('register')">Start for free →</button>
       <button class="btn btn-outline btn-lg" onclick="showPage('login')">Sign in to dashboard</button>
     </div>
-    <div class="hero-stats anim-rise-3">
-      <div><div class="hero-stat-val">10ms</div><div class="hero-stat-label">Avg Response</div></div>
-      <div><div class="hero-stat-val">99.9%</div><div class="hero-stat-label">Uptime SLA</div></div>
-      <div><div class="hero-stat-val">∞</div><div class="hero-stat-label">Products</div></div>
-      <div><div class="hero-stat-val">24/7</div><div class="hero-stat-label">Support</div></div>
-    </div>
+    <div class="hero-stats anim-rise-3" style="margin-top:80px"></div>
+   
+   
+    <div style="position:relative">
+  <div style="position:absolute;inset:-12px;background:conic-gradient(from 0deg,rgba(124,106,247,0.15),rgba(34,211,238,0.1),rgba(16,185,129,0.08),transparent,rgba(124,106,247,0.15));border-radius:50%;animation:spin 8s linear infinite"></div>
+  <div style="position:absolute;inset:-6px;border:1px dashed rgba(124,106,247,0.2);border-radius:50%;animation:spin 12s linear infinite reverse"></div>
+  <div style="position:relative;z-index:1">
+    <div class="hero-stat-val"style="font-size:70px">24/7</div>
+    <div class="hero-stat-label">Support</div>
+  </div>
+
+
+</div>
   </div>
 
   <div class="features">
@@ -306,15 +311,16 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'DM Sans
 
   <div class="cta-banner">
     <div class="cta-inner">
-      <h2 class="section-title">Ready to ship faster?</h2>
-      <p style="color:var(--ink2);font-size:16px;margin:16px auto 32px;max-width:400px">Join thousands of product teams using ProductOS to manage inventory and orders at scale.</p>
+      <h2 class="section-title">Ready to move faster with Nexship?</h2>
+      <p style="color:var(--ink2);font-size:16px;margin:16px auto 32px;max-width:400px">Great products remove friction from everyday work. Nexship is built to make that possible.
+</p>
       <button class="btn btn-primary btn-lg" onclick="showPage('register')">Create free account →</button>
     </div>
   </div>
 
   <footer class="landing-footer">
-    <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;color:var(--ink2)">Product<span style="color:var(--violet)">OS</span></div>
-    <div style="font-size:13px;color:var(--ink3)">© 2026 ProductOS. Built with FastAPI & Vanilla JS.</div>
+    <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;color:var(--ink2)">Nex<span style="color:var(--violet)">Ship</span></div>
+    <div style="font-size:13px;color:var(--ink3)">© 2026 Nexship. Powered by FastAPI, Vanilla JS & Razorpay Secure Payment Integration.</div>
   </footer>
 </div>
 
@@ -326,10 +332,10 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'DM Sans
     <div class="auth-card">
       <div class="auth-logo">
         <div class="nav-logo-mark" style="width:28px;height:28px;border-radius:8px;font-size:12px">P</div>
-        <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:14px;font-weight:700;color:var(--ink2)">ProductOS</span>
+        <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:14px;font-weight:700;color:var(--ink2)">Nexship</span>
       </div>
       <h1 class="auth-title">Welcome back</h1>
-      <p class="auth-sub">Sign in to your ProductOS workspace</p>
+      <p class="auth-sub">Sign in to your Nexship workspace</p>
 
       <div class="field">
         <label>Username</label>
@@ -359,10 +365,10 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'DM Sans
     <div class="auth-card">
       <div class="auth-logo">
         <div class="nav-logo-mark" style="width:28px;height:28px;border-radius:8px;font-size:12px">P</div>
-        <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:14px;font-weight:700;color:var(--ink2)">ProductOS</span>
+        <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:14px;font-weight:700;color:var(--ink2)">Nexship</span>
       </div>
       <h1 class="auth-title">Create account</h1>
-      <p class="auth-sub">Join ProductOS — it's completely free</p>
+      <p class="auth-sub">Join Nexship — it's completely free</p>
 
       <div class="field"><label>Username</label><input id="reg-username" placeholder="choose_a_username"/></div>
       <div class="field"><label>Email</label><input id="reg-email" type="email" placeholder="you@example.com"/></div>
@@ -382,7 +388,7 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'DM Sans
     <div class="auth-card">
       <div class="auth-logo">
         <div class="nav-logo-mark" style="width:28px;height:28px;border-radius:8px;font-size:12px">P</div>
-        <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:14px;font-weight:700;color:var(--ink2)">ProductOS</span>
+        <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:14px;font-weight:700;color:var(--ink2)">Nexship</span>
       </div>
       <h1 class="auth-title" id="forgot-title">Reset password</h1>
       <p class="auth-sub" id="forgot-sub">We'll send a one-time code to your email</p>
@@ -423,8 +429,8 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'DM Sans
   <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-logo">
-      <div class="sidebar-logo-mark">P</div>
-      <div class="sidebar-logo-text">Product<span style="color:var(--violet)">OS</span></div>
+    
+      <div class="sidebar-logo-text" style="font-size:20px">Nex<span style="color:#7c6af7">Ship</span></div>
     </div>
 
     <!-- Live Wallet Card -->
@@ -438,7 +444,7 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'DM Sans
       <button class="nav-item active" id="nav-profile" onclick="switchTab('profile')"><span class="nav-icon">👤</span>Profile</button>
       <button class="nav-item" id="nav-wallet" onclick="switchTab('wallet')"><span class="nav-icon">💰</span>Wallet</button>
       <button class="nav-item" id="nav-products" onclick="switchTab('products')"><span class="nav-icon">📦</span>Products</button>
-      <button class="nav-item" id="nav-orders" onclick="switchTab('orders')"><span class="nav-icon">🛒</span>All User Orders</button>
+      <button class="nav-item" id="nav-orders" onclick="switchTab('orders')"><span class="nav-icon">🛒</span>Orders</button>
       <button class="nav-item" id="nav-security" onclick="switchTab('security')"><span class="nav-icon">🔒</span>Security</button>
     </nav>
 
@@ -456,7 +462,7 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'DM Sans
   <div class="main-content">
     <div class="topbar">
       <div class="topbar-title" id="topbar-title">My Profile</div>
-      <span class="topbar-tag">ProductOS</span>
+      <span class="topbar-tag"><span style="color:#ffffff">Nex</span><span style="color:#7c6af7">ship</span></span>
       <div class="topbar-right">
         <div class="topbar-balance-wrap">
           <span>💰</span>
@@ -509,7 +515,11 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'DM Sans
 // ══════════════════════════════════════════
 // CONFIG & STATE
 // ══════════════════════════════════════════
-const API = 'http://localhost:8000';
+// when the frontend is served by the same backend, use a relative URL
+// base URL for backend API; when the frontend is served by the same FastAPI process
+// this can be left blank and we’ll fall back to `window.location.origin` in `req()`.
+// otherwise set it explicitly, e.g. 'http://localhost:8000'.
+const API = '';
 let authToken = localStorage.getItem('token') || null;
 let currentUser = null;
 let currentBalance = 0;
@@ -522,7 +532,9 @@ let cart = [];
 // HTTP HELPER
 // ══════════════════════════════════════════
 async function req(method, path, body=null, params=null) {
-  let url = API + path;
+  // compute full URL; use window.location.origin when API string is empty
+  let base = API || window.location.origin;
+  let url = base + path;
   if (params) url += '?' + new URLSearchParams(params).toString();
   const headers = {'Content-Type':'application/json'};
   if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
@@ -596,7 +608,7 @@ function showPage(name) {
 const FEATURES = [
   {icon:'📦',title:'Product Management',desc:'Create, update and manage your entire product catalog with real-time stock tracking.',tag:'Core'},
   {icon:'🛒',title:'Order Processing',desc:'End-to-end order lifecycle from pending to completion with automated balance deduction.',tag:'Commerce'},
-  {icon:'💰',title:'Wallet & Balance',desc:'Real-time wallet tracking with live balance updates and one-click refunds.',tag:'Finance'},
+  {icon:'💰',title:'Wallet & Balance',desc:'Secure Razorpay checkout and built-in wallet payments with live balance visibility.',tag:'Finance'},
   {icon:'🔒',title:'Secure Auth',desc:'Token-based auth with OTP password resets and multi-device logout.',tag:'Security'},
   {icon:'📊',title:'Analytics Dashboard',desc:'Inventory value, order stats, and spending insights all in one view.',tag:'Insights'},
   {icon:'⚡',title:'Lightning Fast API',desc:'Built on FastAPI with sub-10ms response times and automatic API docs.',tag:'Tech'},
@@ -808,8 +820,6 @@ function renderProfile(c) {
           <span class="badge badge-cyan">ID #${currentUser.id}</span>
         </div>
       </div>
-  
-      
       <div class="balance-showcase">
         <div style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px">Wallet Balance</div>
         <div class="balance-big" id="profile-balance">${fmtCur(currentBalance)}</div>
@@ -1119,11 +1129,23 @@ function removeCart(index){
   cart.splice(index,1)
   renderCart()
 }
+// public key for Razorpay (frontend only)
+// this value should match the RAZORPAY_KEY in your .env (public key)
+const RAZORPAY_KEY = "rzp_test_SPBVoBriEBZ1Fo"; // test public key
+
 async function placeCartOrder(){
 
   if(cart.length===0){
     alert("Cart empty")
     return
+  }
+
+  // compute total locally so we can offer wallet option
+  const total = cart.reduce((s,i)=>s + i.price * i.quantity, 0);
+  let useWallet = false;
+  if(currentBalance >= total){
+    // show custom modal dialog for choice
+    useWallet = await showPaymentChoice(`You have ₹${currentBalance} in your wallet. Choose payment method:`);
   }
 
   try{
@@ -1133,15 +1155,51 @@ async function placeCartOrder(){
         product_id:i.product_id,
         quantity:i.quantity
       }))
-    })
+    }, {use_wallet: useWallet});
 
-    alert(`Order placed successfully\nOrder ID: ${res.order_id}`)
+    // wallet path – backend returns no razorpay_order
+    if(!res.razorpay_order){
+      alert(res.message || `Order completed using wallet`);
+      cart = [];
+      renderCart();
+      switchTab("orders");
+      await refreshBalance();
+      return;
+    }
 
-    cart = []
-
-    renderCart()
-
-    switchTab("orders")
+    // otherwise fall back to razorpay checkout
+    const rz = res.razorpay_order;
+    const options = {
+      key: RAZORPAY_KEY,
+      amount: rz.amount,
+      currency: rz.currency,
+      order_id: rz.id,
+      handler: async function(response){
+        console.log('razorpay callback', response);
+        if(!response || !response.razorpay_order_id){
+          alert('Payment callback failed, no data received');
+          return;
+        }
+        try {
+          await req('POST','/payment/verify',response);
+          alert("Payment successful! Your order is pending admin confirmation.");
+          cart = [];
+          renderCart();
+          switchTab("orders");
+          await refreshBalance();
+        } catch(e){
+          alert("Verification failed: "+e.message);
+        }
+      },
+      prefill: {
+        name: currentUser.username,
+        email: currentUser.email,
+      },
+      theme: {color: "#7c6af7"},
+      modal: {ondismiss:()=>console.log('checkout dismissed')}
+    };
+    const rzp = new Razorpay(options);
+    rzp.open();
 
   }
   catch(e){
@@ -1149,6 +1207,31 @@ async function placeCartOrder(){
   }
 
 }
+
+// helper to show a modal with wallet / razorpay options
+function showPaymentChoice(message){
+  return new Promise(res=>{
+    let modal = document.getElementById('pay-choice-modal');
+    if(!modal){
+      modal = document.createElement('div');
+      modal.id='pay-choice-modal';
+      modal.style= 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000';
+      modal.innerHTML = `
+        <div style="background:var(--bg1);padding:24px;border-radius:12px;max-width:320px;text-align:center;color:var(--ink)">
+          <div id="pay-choice-msg" style="margin-bottom:16px"></div>
+          <button id="pay-wallet-btn" class="btn btn-primary btn-sm" style="margin:4px">Pay with Wallet</button>
+          <button id="pay-razor-btn" class="btn btn-outline btn-sm" style="margin:4px">Pay with Razorpay</button>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      modal.querySelector('#pay-wallet-btn').onclick = ()=>{ cleanup(); res(true); };
+      modal.querySelector('#pay-razor-btn').onclick = ()=>{ cleanup(); res(false); };
+      function cleanup(){ modal.remove(); }
+    }
+    modal.querySelector('#pay-choice-msg').textContent = message;
+  });
+}
+
 
 
 function orderProduct(productId){
@@ -1191,13 +1274,12 @@ async function renderOrders(c) {
 
     let orders;
 
-if(currentUser.is_admin){
-  orders = await req('GET','/admin/orders');
-}else{
-  orders = await req('GET','/orders');
-}
+    if(currentUser.is_admin){
+      orders = await req('GET','/admin/orders');
+    }else{
+      orders = await req('GET','/orders');
+    }
     orders.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-
 
     const spent = orders
       .filter(o=>o.status==='completed')
@@ -1237,7 +1319,7 @@ if(currentUser.is_admin){
       </div>
 
       <div class="sec-head anim-rise-2">
-        <div class="sec-title">Your Orders</div>
+        <div class="sec-title">${currentUser.is_admin ? 'All Orders' : 'Your Orders'}</div>
         <span class="count-tag">${orders.length} orders</span>
       </div>
 
@@ -1260,6 +1342,12 @@ if(currentUser.is_admin){
                   #${o.order_id}
                 </span>
 
+                ${currentUser.is_admin && o.username ? `
+                  <span style="font-size:12px;color:var(--ink3);margin-left:4px">
+                    👤 ${o.username}
+                  </span>
+                ` : ''}
+
                 <span class="badge ${bcls}">
                   ${blabel}
                 </span>
@@ -1270,6 +1358,9 @@ if(currentUser.is_admin){
 
                 <span style="margin-left:auto;font-family:'JetBrains Mono';font-size:15px;font-weight:700;color:var(--cyan)">
                   ${fmtCur(o.total_price)}
+                </span>
+                <span style="font-size:10px;color:var(--ink3);margin-left:8px">
+                  ${o.used_wallet ? 'wallet' : 'razorpay'}
                 </span>
 
                 <span id="chevron-${o.order_id}"
@@ -1327,7 +1418,6 @@ if(currentUser.is_admin){
 
   }
 }
-
 function toggleOrder(id) {
   const body = document.getElementById('order-body-'+id);
   const chev = document.getElementById('chevron-'+id);
