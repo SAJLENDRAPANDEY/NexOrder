@@ -6,6 +6,7 @@ import razorpay
 from datetime import datetime
 from typing import List, Optional
 from dotenv import load_dotenv
+from mangum import Mangum
 
 
 from fastapi import FastAPI, Depends, HTTPException, status, BackgroundTasks
@@ -67,6 +68,7 @@ app.mount("/static", StaticFiles(directory=frontend_path), name="static")
 @app.get("/")
 def serve_index():
     return FileResponse(os.path.join(frontend_path, 'index.html'))
+handler = Mangum(app)
 
 # CORS (for your frontend)
 app.add_middleware(
