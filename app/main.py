@@ -38,9 +38,16 @@ if os.path.exists(frontend_path):
 handler = Mangum(app)
 
 # CORS (for your frontend)
+origins = [
+    "https://nexshipp.vercel.app",
+    "http://localhost",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # in prod, restrict this
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
