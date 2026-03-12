@@ -50,15 +50,13 @@ def initiate_wallet_topup(
 
 @router.post("/verify")
 def verify_payment(
-    razorpay_order_id: str,
-    razorpay_payment_id: str,
-    razorpay_signature: str,
+    request: schemas.PaymentVerifyRequest,
     db: Session = Depends(get_db),
 ):
     params_dict = {
-        "razorpay_order_id": razorpay_order_id,
-        "razorpay_payment_id": razorpay_payment_id,
-        "razorpay_signature": razorpay_signature,
+        "razorpay_order_id": request.razorpay_order_id,
+        "razorpay_payment_id": request.razorpay_payment_id,
+        "razorpay_signature": request.razorpay_signature,
     }
 
     try:
@@ -71,25 +69,25 @@ def verify_payment(
 
     # Check if this is a product order
     order = db.query(models.Order).filter(
-        models.Order.razorpay_order_id == razorpay_order_id
+        models.Order.razorpay_order_id == request.razorpay_order_id
     ).first()
 
     if order:
-        order.razorpay_payment_id = razorpay_payment_id
+        order.razorpay_payment_id = request.razorpay_payment_id
         order.payment_status = "completed"
         db.commit()
         return {"message": "Order payment verified and completed"}
 
     # Check if this is a wallet top-up
     tx = db.query(models.WalletTransaction).filter(
-        models.WalletTransaction.razorpay_order_id == razorpay_order_id
+        models.WalletTransaction.razorpay_order_id == request.razorpay_order_id
     ).first()
 
     if tx:
         if tx.status == "completed":
             return {"message": "Wallet already topped up"}
             
-        tx.razorpay_payment_id = razorpay_payment_id
+        tx.razorpay_payment_id = request.razorpay_payment_id
         tx.status = "completed"
         
         # Credit user's wallet
