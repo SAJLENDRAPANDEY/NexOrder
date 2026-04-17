@@ -1,6 +1,7 @@
 import bcrypt
 import secrets
 import random
+import logging
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
@@ -13,33 +14,48 @@ from app.core.database import get_db
 from app.services.email_service import send_reset_email
 from app.dependencies import security, get_current_user
 
+logger = logging.getLogger(__name__)
 router = APIRouter(tags=["Authentication & Users"])
 
 @router.post("/register", response_model=schemas.UserResponse, status_code=201)
 def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    logger.info(f"📝 Register attempt: username={user.username}")
+    
     db_user = crud.get_user_by_username(db, username=user.username)
     if db_user:
+        logger.warning(f"❌ Username already exists: {user.username}")
         raise HTTPException(400, "Username already registered")
 
     db_user = crud.get_user_by_email(db, email=user.email)
     if db_user:
+        logger.warning(f"❌ Email already exists: {user.email}")
         raise HTTPException(400, "Email already registered")
 
-    return crud.create_user(db=db, user=user)
+    user_obj = crud.create_user(db=db, user=user)
+    logger.info(f"✅ User registered successfully: {user.username}")
+    return user_obj
 
 @router.post("/login", response_model=schemas.Token)
 def login(user_data: schemas.UserLogin, db: Session = Depends(get_db)):
+    logger.info(f"🔑 Login attempt: username={user_data.username}")
+    
     user = crud.authenticate_user(db, user_data.username, user_data.password)
 
     if not user:
+        logger.warning(f"❌ Login failed: Invalid credentials for {user_data.username}")
         raise HTTPException(401, "Incorrect username or password")
 
-    token_str = secrets.token_hex(16)
-    db_token = models.UserToken(token=token_str, user_id=user.id)
-    db.add(db_token)
-    db.commit()
-
-    return {"access_token": token_str, "token_type": "bearer"}
+    try:
+        token_str = secrets.token_hex(16)
+        db_token = models.UserToken(token=token_str, user_id=user.id)
+        db.add(db_token)
+        db.commit()
+        logger.info(f"✅ Login successful: {user_data.username}")
+        return {"access_token": token_str, "token_type": "bearer"}
+    except Exception as e:
+        logger.error(f"❌ Login error: {str(e)}")
+        db.rollback()
+        raise HTTPException(500, f"Login failed: {str(e)}")
 
 @router.get("/users/me")
 def get_current_user_route(

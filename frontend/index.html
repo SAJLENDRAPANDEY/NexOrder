@@ -1812,7 +1812,11 @@
     // ══════════════════════════════════════════
     // CONFIG & STATE
     // ══════════════════════════════════════════
-    const API = '';
+    // ══════════════════════════════════════════
+    // API CONFIGURATION - Local SQLite Development
+    // ══════════════════════════════════════════
+    const API = 'http://localhost:8001';  // Local FastAPI server on port 8001
+    console.log('🚀 API URL:', API);
     let authToken = localStorage.getItem('token') || null;
     let currentUser = null;
     let currentBalance = 0;
@@ -1928,11 +1932,16 @@
       if (!username || !password) return showAlert('login-alert', 'Please enter username and password.');
       setBtnLoading('login-btn', true);
       try {
+        console.log('🔑 Attempting login...');
         const data = await req('POST', '/api/auth/login', { username, password });
+        console.log('✅ Login successful');
         authToken = data.access_token;
         localStorage.setItem('token', authToken);
         showPage('dashboard');
-      } catch (e) { showAlert('login-alert', e.message); }
+      } catch (e) { 
+        console.error('❌ Login failed:', e);
+        showAlert('login-alert', e.message); 
+      }
       finally { setBtnLoading('login-btn', false, 'Sign In →'); }
     }
 

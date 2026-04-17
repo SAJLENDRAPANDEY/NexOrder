@@ -1,3 +1,9 @@
-from app.main import app
+"""
+✅ VERCEL DEPLOYMENT HANDLER
+This file exports the Mangum ASGI handler for Vercel serverless functions.
+"""
 
-# This file is used by Vercel for serverless deployment
+from app.main import handler
+
+# Vercel routes all requests through this handler
+__all__ = ["handler"]
