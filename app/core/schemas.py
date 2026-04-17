@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from datetime import datetime
 from typing import List, Optional
 
@@ -31,12 +31,11 @@ class UserUpdate(BaseModel):
 class UserResponse(UserBase):
     id: int
     is_active: bool
-    created_at: datetime
     is_admin: bool
     balance: float
+    created_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserLogin(BaseModel):
@@ -77,11 +76,10 @@ class ProductUpdate(BaseModel):
 
 class ProductResponse(ProductBase):
     id: int
-    created_at: datetime
+    created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # =========================
 # ORDER SCHEMAS
@@ -108,10 +106,9 @@ class OrderResponse(BaseModel):
     razorpay_order_id: Optional[str] = None
     payment_status: Optional[str] = None
     used_wallet: bool = False
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # =========================
@@ -127,10 +124,9 @@ class WalletTransactionResponse(BaseModel):
     amount: float
     status: str
     razorpay_order_id: Optional[str] = None
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class PaymentVerifyRequest(BaseModel):
     razorpay_order_id: str
