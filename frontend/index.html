@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nexship</title>
+  <title>NexOrder</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap"
     rel="stylesheet" />
@@ -1550,14 +1550,14 @@
 
       <div class="hero-badge anim-rise">
         <span class="hero-dot"></span>
-        Nexship is Now Live
+        NexOrder is Now Live
       </div>
       <h1 class="hero-title anim-rise-1">
         Order in seconds<br>
-        <span class="gradient-text">Track instantly Manage everything in one place with Nexship</span>
+        <span class="gradient-text">Track instantly Manage everything in one place with NexOrder</span>
       </h1>
       <p class="hero-sub anim-rise-2">
-        Run your operations smarter with Nexship — manage inventory, orders, and payments from one powerful dashboard
+        Run your operations smarter with NexOrder — manage inventory, orders, and payments from one powerful dashboard
       </p>
       <div class="hero-btns anim-rise-3">
         <button class="btn btn-primary btn-lg" onclick="showPage('register')">Start for free →</button>
@@ -1577,15 +1577,15 @@
 
     <div class="cta-banner">
       <div class="cta-inner">
-        <h2 class="section-title">Ready to move faster with Nexship?</h2>
-        <p style="color:var(--ink2);font-size:16px;margin:16px auto 32px;max-width:400px">Great products remove friction from everyday work. Nexship is built to make that possible.</p>
+        <h2 class="section-title">Ready to move faster with NexOrder?</h2>
+        <p style="color:var(--ink2);font-size:16px;margin:16px auto 32px;max-width:400px">Great products remove friction from everyday work. NexOrder is built to make that possible.</p>
         <button class="btn btn-primary btn-lg" onclick="showPage('register')">Create free account →</button>
       </div>
     </div>
 
     <footer class="landing-footer">
       <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;color:var(--ink2)">Nex<span style="color:var(--violet)">Ship</span></div>
-      <div style="font-size:13px;color:var(--ink3)">© 2026 Nexship. Powered by FastAPI, Vanilla JS & Razorpay Secure Payment Integration.</div>
+      <div style="font-size:13px;color:var(--ink3)">© 2026 NexOrder. Powered by FastAPI, Vanilla JS & Razorpay Secure Payment Integration.</div>
     </footer>
   </div>
 
@@ -1597,10 +1597,10 @@
       <div class="auth-card">
         <div class="auth-logo">
           <div class="nav-logo-mark" style="width:28px;height:28px;border-radius:8px;font-size:12px">P</div>
-          <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:14px;font-weight:700;color:var(--ink2)">Nexship</span>
+          <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:14px;font-weight:700;color:var(--ink2)">NexOrder</span>
         </div>
         <h1 class="auth-title">Welcome back</h1>
-        <p class="auth-sub">Sign in to your Nexship workspace</p>
+        <p class="auth-sub">Sign in to your NexOrder workspace</p>
 
         <div class="field">
           <label>Username</label>
@@ -1630,10 +1630,10 @@
       <div class="auth-card">
         <div class="auth-logo">
           <div class="nav-logo-mark" style="width:28px;height:28px;border-radius:8px;font-size:12px">P</div>
-          <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:14px;font-weight:700;color:var(--ink2)">Nexship</span>
+          <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:14px;font-weight:700;color:var(--ink2)">NexOrder</span>
         </div>
         <h1 class="auth-title">Create account</h1>
-        <p class="auth-sub">Join Nexship — it's completely free</p>
+        <p class="auth-sub">Join NexOrder — it's completely free</p>
 
         <div class="field"><label>Username</label><input id="reg-username" placeholder="choose_a_username" /></div>
         <div class="field"><label>Email</label><input id="reg-email" type="email" placeholder="you@example.com" /></div>
@@ -1653,7 +1653,7 @@
       <div class="auth-card">
         <div class="auth-logo">
           <div class="nav-logo-mark" style="width:28px;height:28px;border-radius:8px;font-size:12px">P</div>
-          <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:14px;font-weight:700;color:var(--ink2)">Nexship</span>
+          <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:14px;font-weight:700;color:var(--ink2)">NexOrder</span>
         </div>
         <h1 class="auth-title" id="forgot-title">Reset password</h1>
         <p class="auth-sub" id="forgot-sub">We'll send a one-time code to your email</p>
@@ -2094,7 +2094,7 @@
           key: RAZORPAY_KEY_ID || 'rzp_test_YOUR_KEY',
           amount: data.razorpay_order.amount,
           currency: "INR",
-          name: "Nexship Wallet",
+          name: "NexOrder Wallet",
           description: "Fund your wallet balance",
           order_id: data.razorpay_order.id,
           handler: async function (response) {
