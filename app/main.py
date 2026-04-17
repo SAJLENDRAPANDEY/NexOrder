@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from mangum import Mangum
+# from mangum import Mangum
 
 from contextlib import asynccontextmanager
 
@@ -127,5 +127,5 @@ def api_health_check():
 # ==========================================
 # VERCEL HANDLER - CRITICAL FOR DEPLOYMENT
 # ==========================================
-handler = Mangum(app)
-logger.info("✅ Mangum handler exported for Vercel serverless")
+# handler = Mangum(app)
+# logger.info("✅ Mangum handler exported for Vercel serverless")
