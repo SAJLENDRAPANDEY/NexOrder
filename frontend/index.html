@@ -1933,7 +1933,7 @@
       setBtnLoading('login-btn', true);
       try {
         console.log('🔑 Attempting login...');
-        const data = await req('fetch(`${API}/api/auth/login`'), { username, password });
+        const data = await req('POST', '/api/auth/login', { username, password });
         console.log('✅ Login successful');
         authToken = data.access_token;
         localStorage.setItem('token', authToken);

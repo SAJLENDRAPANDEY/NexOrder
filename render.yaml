@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: nexorder
+    runtime: python
+    pythonVersion: 3.11
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app.main:app --bind 0.0.0.0:10000 --timeout 120
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11
+    healthCheckPath: /health
+    healthCheckInterval: 30
+    healthCheckTimeout: 10

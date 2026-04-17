@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-# from mangum import Mangum
+from mangum import Mangum
 
 from contextlib import asynccontextmanager
 
@@ -61,6 +61,7 @@ if os.path.exists(FRONTEND_DIR):
     index_file = os.path.join(FRONTEND_DIR, "index.html")
     if os.path.exists(index_file):
         @app.get("/", tags=["Frontend"])
+        @app.head("/", tags=["Frontend"])
         def serve_index():
             logger.info("📄 Serving index.html")
             return FileResponse(index_file)
@@ -71,11 +72,12 @@ else:
 
 
 # ==========================================
-# CORS CONFIG - LOCAL DEVELOPMENT
+# CORS CONFIG - LOCAL DEVELOPMENT & PRODUCTION
 # ==========================================
 cors_origins = [
-    "https://nexorder-kappa.vercel.app",
-    "http://localhost:3000",
+    "https://nexorder.onrender.com",        # Production Render URL
+    "https://nexorder-kappa.vercel.app",    # Vercel frontend
+    "http://localhost:3000",                 # Local dev
     "http://localhost:8000",
     "http://127.0.0.1:3000",
     "http://127.0.0.1:8000",
@@ -127,5 +129,5 @@ def api_health_check():
 # ==========================================
 # VERCEL HANDLER - CRITICAL FOR DEPLOYMENT
 # ==========================================
-# handler = Mangum(app)
-# logger.info("✅ Mangum handler exported for Vercel serverless")
+handler = Mangum(app)
+logger.info("✅ Mangum handler exported for Vercel serverless")
