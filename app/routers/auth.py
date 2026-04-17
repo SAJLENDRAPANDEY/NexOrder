@@ -41,11 +41,16 @@ def login(user_data: schemas.UserLogin, db: Session = Depends(get_db)):
 
     return {"access_token": token_str, "token_type": "bearer"}
 
-@router.get("/users/me", response_model=schemas.UserResponse)
+@router.get("/users/me")
 def get_current_user_route(
     current_user: models.User = Depends(get_current_user),
 ):
-    return current_user
+    return {
+        "id": current_user.id,
+        "username": current_user.username,
+        "email": current_user.email,
+        "is_admin": current_user.is_admin   # 🔥 ADD THIS
+    }
 
 @router.put("/users/me")
 def update_profile(

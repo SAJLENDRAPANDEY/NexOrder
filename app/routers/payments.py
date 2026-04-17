@@ -5,7 +5,7 @@ from app.core import models, schemas
 from app.core.database import get_db
 from app.dependencies import razorpay_client, get_current_user
 
-router = APIRouter(prefix="/payment", tags=["Payments"])
+router = APIRouter(tags=["Payments"])
 
 @router.post("/wallet/topup")
 def initiate_wallet_topup(
@@ -13,6 +13,9 @@ def initiate_wallet_topup(
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    if not razorpay_client:
+        raise HTTPException(status_code=500, detail="Razorpay is not configured")
+
     if request.amount <= 0:
         raise HTTPException(status_code=400, detail="Amount must be greater than zero")
 

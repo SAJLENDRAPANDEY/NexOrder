@@ -15,7 +15,7 @@ ORDER_STATUS_FLOW = {
     "cancelled": []
 }
 
-@router.post("/orders")
+@router.post("/")
 def create_order(
     order: schemas.OrderCreate,
     use_wallet: bool = False,
@@ -69,31 +69,38 @@ def create_order(
     # non-wallet path: create a Razorpay order as soon as we calculate the total
     db.commit()
 
-    amount_paise = int(total_price * 100)
-    try:
-        rz_order = razorpay_client.order.create({
-            "amount": amount_paise,
-            "currency": "INR",
-            "receipt": f"order_{db_order.id}",
-        })
-    except Exception as e:
-        # if Razorpay call fails, rollback db changes and propagate
-        db.rollback()
-        raise HTTPException(status_code=500, detail="Payment gateway error")
+    if razorpay_client:
+        try:
+            rz_order = razorpay_client.order.create({
+                "amount": int(total_price * 100),
+                "currency": "INR",
+                "receipt": f"order_{db_order.id}",
+            })
+            db_order.razorpay_order_id = rz_order.get("id")
+            db.commit()
+            db.refresh(db_order)
 
-    # store razorpay order id for later verification
-    db_order.razorpay_order_id = rz_order.get("id")
-    db.commit()
-    db.refresh(db_order)
+            return {
+                "order_id": db_order.id,
+                "total": total_price,
+                "razorpay_order": rz_order,
+                "message": "Order created successfully, proceed to payment"
+            }
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Razorpay error: {str(e)}")
+    else:
+        # Fallback when Razorpay is not configured
+        db_order.razorpay_order_id = "test_order"
+        db.commit()
+        db.refresh(db_order)
 
-    return {
-        "order_id": db_order.id,
-        "total": total_price,
-        "razorpay_order": rz_order,
-        "message": "Order created successfully, proceed to payment"
-    }
+        return {
+            "order_id": db_order.id,
+            "total": total_price,
+            "message": "Order created successfully (Razorpay not configured)"
+        }
 
-@router.get("/orders")
+@router.get("/")
 def my_orders(
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -182,7 +189,7 @@ def admin_orders(
         print(f"ADMIN ORDERS ERROR: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.put("/orders/{order_id}/status")
+@router.put("/{order_id}/status")
 def update_order_status(
     order_id: int,
     new_status: str,
@@ -230,19 +237,140 @@ def update_order_status(
                 product.stock -= item.quantity
 
     # cancel order → restore stock
-    if current_status == "pending" and new_status == "cancelled":
-
+    elif current_status == "pending" and new_status == "cancelled":
         for item in order.items:
             product = item.product
             if product:
                 product.stock += item.quantity
 
     order.status = new_status
-
     db.commit()
     db.refresh(order)
 
+    return {"message": f"Order {order_id} status updated to {new_status}"}
+
+
+@router.post("/advance")
+def create_advance_order(
+    order: schemas.OrderCreate,
+    order_date: str,
+    time_slot: str,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    db_order = models.Order(
+        user_id=current_user.id,
+        status="pending",
+        used_wallet=False,
+        scheduled_date=order_date,
+        time_slot=time_slot
+    )
+
+    db.add(db_order)
+    db.commit()
+    db.refresh(db_order)
+
     return {
-        "message": f"Order status updated to {new_status}",
-        "order_id": order.id
+        "message": "Advance order placed",
+        "order_id": db_order.id,
+        "date": order_date,
+        "slot": time_slot
     }
+
+@router.get("/analytics/peak-hours")
+def peak_hours(db: Session = Depends(get_db)):
+    from sqlalchemy import func
+
+    result = db.query(
+        func.strftime("%H", models.Order.created_at).label("hour"),
+        func.count(models.Order.id)
+    ).group_by("hour").all()
+
+    return {
+        "peak_data": [
+            {"hour": r[0], "orders": r[1]} for r in result
+        ]
+    }
+
+@router.get("/slots")
+def get_slots(db: Session = Depends(get_db)):
+
+    slots = [
+        "12:40-1:00",
+        "1:00-1:20",
+        "1:20-1:40",
+        "1:40-2:00"
+    ]
+
+    result = []
+
+    for slot in slots:
+        count = db.query(models.Order).filter(
+            models.Order.time_slot == slot
+        ).count()
+
+        result.append({
+            "slot": slot,
+            "orders": count,
+            "available": count < 10
+        })
+
+    return result
+
+@router.post("/waste")
+def add_food_waste(
+    food_name: str,
+    quantity: int,
+    reason: str = "extra",
+    db: Session = Depends(get_db)
+):
+    waste = models.FoodWaste(
+        food_name=food_name,
+        quantity=quantity,
+        reason=reason
+    )
+
+    db.add(waste)
+    db.commit()
+
+    return {"message": "Food waste recorded"}
+
+@router.get("/analytics/top-products")
+def top_products(db: Session = Depends(get_db)):
+    from sqlalchemy import func
+
+    result = db.query(
+        models.Product.name,
+        func.sum(models.OrderItem.quantity).label("total_orders")
+    ).join(models.OrderItem).group_by(models.Product.name).order_by(func.sum(models.OrderItem.quantity).desc()).limit(5).all()
+
+    return [
+        {"product": r[0], "orders": r[1]} for r in result
+    ]
+
+@router.get("/recommendations")
+def recommend_products(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    from sqlalchemy import func
+
+    user_orders = db.query(models.OrderItem.product_id).join(models.Order).filter(
+        models.Order.user_id == current_user.id
+    ).all()
+
+    product_ids = [p[0] for p in user_orders]
+
+    if not product_ids:
+        return {"message": "No recommendations yet"}
+
+    result = db.query(
+        models.Product.name,
+        func.sum(models.OrderItem.quantity).label("total")
+    ).join(models.OrderItem).filter(
+        models.Product.id.in_(product_ids)
+    ).group_by(models.Product.name).order_by(func.sum(models.OrderItem.quantity).desc()).limit(3).all()
+
+    return [
+        {"recommended_product": r[0]} for r in result
+    ]

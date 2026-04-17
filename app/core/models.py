@@ -39,21 +39,7 @@ class Product(Base):
     stock=Column(Integer, default=0)
 
 
-class Order(Base):
-    __tablename__ = "orders"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    total_price = Column(Float, default=0)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    items = relationship("OrderItem", backref="order")
-    user = relationship("User", back_populates="orders")
-    status = Column(String, default="pending")  # pending / completed / cancelled
-    # payment gateway fields
-    razorpay_order_id = Column(String(100), nullable=True)
-    razorpay_payment_id = Column(String(100), nullable=True)
-    payment_status = Column(String(50), default="pending")
-    used_wallet = Column(Boolean, default=False)  # whether user opted to pay from wallet
+  # whether user opted to pay from wallet
 class OrderItem(Base):
     __tablename__ = "order_items"
 
@@ -87,4 +73,35 @@ class WalletTransaction(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User")
+
+class Order(Base):
+    __tablename__ = "orders"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    total_price = Column(Float, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # 🔥 NEW FIELDS
+    scheduled_date = Column(String, nullable=True)
+    time_slot = Column(String, nullable=True)
+
+    items = relationship("OrderItem", backref="order")
+    user = relationship("User", back_populates="orders")
+
+    status = Column(String, default="pending")
+    razorpay_order_id = Column(String(100), nullable=True)
+    razorpay_payment_id = Column(String(100), nullable=True)
+    payment_status = Column(String(50), default="pending")
+    used_wallet = Column(Boolean, default=False)
+
+
+class FoodWaste(Base):
+    __tablename__ = "food_waste"
+
+    id = Column(Integer, primary_key=True, index=True)
+    food_name = Column(String(100))
+    quantity = Column(Integer)
+    reason = Column(String(100), nullable=True)  # unsold / expired / extra
+    created_at = Column(DateTime, default=datetime.utcnow)
 
