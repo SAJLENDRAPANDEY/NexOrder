@@ -74,6 +74,7 @@ else:
 # CORS CONFIG - LOCAL DEVELOPMENT
 # ==========================================
 cors_origins = [
+    "https://nexorder-kappa.vercel.app",
     "http://localhost:3000",
     "http://localhost:8000",
     "http://127.0.0.1:3000",
