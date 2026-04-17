@@ -1815,7 +1815,7 @@
     // ══════════════════════════════════════════
     // API CONFIGURATION - Local SQLite Development
     // ══════════════════════════════════════════
-    const API = 'http://localhost:8001';  // Local FastAPI server on port 8001
+    const API = 'https://nexorder.onrender.com';  // Local FastAPI server on port 8001
     console.log('🚀 API URL:', API);
     let authToken = localStorage.getItem('token') || null;
     let currentUser = null;
@@ -1933,7 +1933,7 @@
       setBtnLoading('login-btn', true);
       try {
         console.log('🔑 Attempting login...');
-        const data = await req('POST', '/api/auth/login', { username, password });
+        const data = await req('fetch(`${API}/api/auth/login`'), { username, password });
         console.log('✅ Login successful');
         authToken = data.access_token;
         localStorage.setItem('token', authToken);
