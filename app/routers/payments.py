@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 from app.core import models, schemas
 from app.core.database import get_db
 from app.dependencies import razorpay_client, get_current_user
+from typing import Optional
+from datetime import datetime
 
 router = APIRouter(tags=["Payments"])
 
@@ -76,10 +78,38 @@ def verify_payment(
     ).first()
 
     if order:
+        # 🔥 DATE VALIDATION
+        if request.scheduled_date:
+            selected_date = datetime.strptime(request.scheduled_date, "%Y-%m-%d").date()
+
+            if selected_date < datetime.today().date():
+                raise HTTPException(status_code=400, detail="Past date not allowed")
+
+        # 🔥 SLOT LIMIT CHECK
+        if request.time_slot:
+            count = db.query(models.Order).filter(
+                models.Order.scheduled_date == request.scheduled_date,
+                models.Order.time_slot == request.time_slot
+            ).count()
+
+            if count >= 10:
+                raise HTTPException(status_code=400, detail="Slot full")
+
+        # 🔥 SAVE PAYMENT + SLOT DATA
         order.razorpay_payment_id = request.razorpay_payment_id
         order.payment_status = "completed"
+
+        # 🔥 ADD THESE 2 LINES (MOST IMPORTANT)
+        order.scheduled_date = request.scheduled_date
+        order.time_slot = request.time_slot
+
         db.commit()
-        return {"message": "Order payment verified and completed"}
+
+        return {
+            "message": "Order payment verified and completed",
+            "scheduled_date": order.scheduled_date,
+            "time_slot": order.time_slot
+        }
 
     # Check if this is a wallet top-up
     tx = db.query(models.WalletTransaction).filter(

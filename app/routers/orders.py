@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from datetime import datetime
 from app.core import schemas, models
 from app.services import crud
 from app.core.database import get_db
@@ -22,9 +23,30 @@ def create_order(
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    db_order = models.Order(user_id=current_user.id, status="pending", used_wallet=use_wallet)
+    db_order = models.Order(
+    user_id=current_user.id,
+    status="pending",
+    used_wallet=use_wallet,
+    scheduled_date=order.scheduled_date,
+    time_slot=order.time_slot
+)
     db.add(db_order)
     db.flush()
+    if order.scheduled_date:
+        selected_date = datetime.strptime(order.scheduled_date, "%Y-%m-%d").date()
+    
+    if selected_date < datetime.today().date():
+        raise HTTPException(status_code=400, detail="Past date not allowed")
+
+# ❌ slot limit check (max 10 orders per slot)
+    if order.time_slot:
+        count = db.query(models.Order).filter(
+            models.Order.scheduled_date == order.scheduled_date,
+            models.Order.time_slot == order.time_slot
+        ).count()
+
+        if count >= 10:
+            raise HTTPException(status_code=400, detail="Slot full, choose another")
 
     total_price = 0
 
@@ -132,6 +154,9 @@ def my_orders(
                 "used_wallet": order.used_wallet,
                 "razorpay_order_id": order.razorpay_order_id,
                 "payment_status": order.payment_status,
+                
+                "scheduled_date": order.scheduled_date,
+                "time_slot": order.time_slot,
                 "items": items_list
             }
 
@@ -253,8 +278,6 @@ def update_order_status(
 @router.post("/advance")
 def create_advance_order(
     order: schemas.OrderCreate,
-    order_date: str,
-    time_slot: str,
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -262,19 +285,41 @@ def create_advance_order(
         user_id=current_user.id,
         status="pending",
         used_wallet=False,
-        scheduled_date=order_date,
-        time_slot=time_slot
+        scheduled_date=order.scheduled_date,
+        time_slot=order.time_slot
     )
 
     db.add(db_order)
+    db.flush()
+
+    total_price = 0
+
+    for item in order.items:
+        product = db.query(models.Product).filter(
+            models.Product.id == item.product_id
+        ).first()
+
+        if not product:
+            raise HTTPException(404, "Product not found")
+
+        subtotal = product.price * item.quantity
+        total_price += subtotal
+
+        db.add(models.OrderItem(
+            order_id=db_order.id,
+            product_id=product.id,
+            quantity=item.quantity,
+            price_at_purchase=product.price
+        ))
+
+    db_order.total_price = total_price
+
     db.commit()
     db.refresh(db_order)
 
     return {
         "message": "Advance order placed",
-        "order_id": db_order.id,
-        "date": order_date,
-        "slot": time_slot
+        "order_id": db_order.id
     }
 
 @router.get("/analytics/peak-hours")

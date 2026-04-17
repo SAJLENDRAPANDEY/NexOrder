@@ -94,6 +94,8 @@ class OrderItemCreate(BaseModel):
 
 class OrderCreate(BaseModel):
     items: List[OrderItemCreate]
+    scheduled_date: str
+    time_slot: str
 
 
 class OrderResponse(BaseModel):
@@ -101,6 +103,8 @@ class OrderResponse(BaseModel):
     user_id: int
     total_price: float
     status: str
+    scheduled_date: Optional[str] = None   
+    time_slot: Optional[str] = None
     razorpay_order_id: Optional[str] = None
     payment_status: Optional[str] = None
     used_wallet: bool = False
@@ -132,4 +136,6 @@ class PaymentVerifyRequest(BaseModel):
     razorpay_order_id: str
     razorpay_payment_id: str
     razorpay_signature: str
+    scheduled_date: Optional[str] = None
+    time_slot: Optional[str] = None
 

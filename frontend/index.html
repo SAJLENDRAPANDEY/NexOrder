@@ -2102,7 +2102,9 @@
               await req('POST', '/api/payments/payment/verify', {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature
+                razorpay_signature: response.razorpay_signature,
+                scheduled_date: document.getElementById("orderDate")?.value,
+                time_slot: document.getElementById("timeSlot")?.value
               });
               closeTopupModal();
               refreshBalance();
@@ -2128,6 +2130,9 @@
 
     const TAB_TITLES = { profile: 'My Profile', wallet: 'Wallet', products: 'Products', orders: 'Orders', security: 'Security', 'admin-dashboard': 'Admin Dashboard', 'admin-products': 'Manage Products', 'admin-orders': 'Manage Orders' };
     function switchTab(tab) {
+      if (tab === "admin-orders") {
+  loadAdminOrders();  // 🔥 ADD THIS LINE
+}
       currentTab = tab;
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       document.getElementById('nav-' + tab)?.classList.add('active');
@@ -2277,13 +2282,13 @@
                             <span class="badge ${bcls}">${blabel}</span>
                           </div>
                           ${!currentUser.is_admin ? `
-                            <div class="product-actions" style="display:flex;gap:8px;margin-top:12px">
-                              <div style="display:flex;align-items:center;border:1px solid var(--border);border-radius:10px">
-                                <button onclick="changeQty(${p.id},-1)" ${p.stock === 0 ? 'disabled' : ''} style="padding:6px 10px;background:none;border:none;color:white;cursor:pointer;${p.stock === 0 ? 'opacity:0.4;cursor:not-allowed' : ''}">-</button>
-                                <span id="qty-${p.id}" style="padding:0 10px">${p.stock === 0 ? 0 : 1}</span>
-                                <button onclick="changeQty(${p.id},1)" ${p.stock === 0 ? 'disabled' : ''} style="padding:6px 10px;background:none;border:none;color:white;cursor:pointer;${p.stock === 0 ? 'opacity:0.4;cursor:not-allowed' : ''}">+</button>
+                            <div style="display:flex;gap:10px;margin-top:14px;align-items:center">
+                              <div style="display:flex;align-items:center;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:8px;padding:4px">
+                                <button onclick="changeQty(${p.id},-1)" ${p.stock === 0 ? 'disabled' : ''} style="padding:6px 8px;background:none;border:none;color:var(--cyan);cursor:pointer;font-size:18px;${p.stock === 0 ? 'opacity:0.4;cursor:not-allowed' : 'transition:all 0.2s;'}">−</button>
+                                <span id="qty-${p.id}" style="padding:0 12px;font-weight:600;min-width:30px;text-align:center">${p.stock === 0 ? 0 : 1}</span>
+                                <button onclick="changeQty(${p.id},1)" ${p.stock === 0 ? 'disabled' : ''} style="padding:6px 8px;background:none;border:none;color:var(--cyan);cursor:pointer;font-size:18px;${p.stock === 0 ? 'opacity:0.4;cursor:not-allowed' : 'transition:all 0.2s;'}">+</button>
                               </div>
-                              <button class="btn btn-primary btn-sm" onclick="orderProduct(${p.id})" ${p.stock === 0 ? 'disabled' : ''}>Add to Cart</button>
+                              <button class="btn btn-primary btn-sm" style="flex:1" onclick="orderProduct(${p.id})" ${p.stock === 0 ? 'disabled' : ''}>🛒 Add</button>
                             </div>
                           ` : ''}
                         </div>
@@ -2295,14 +2300,41 @@
             </div>
             ${!currentUser.is_admin ? `
               <div class="card card-pad anim-rise-2" style="height:fit-content;position:sticky;top:20px">
-                <div class="sec-title" style="margin-bottom:12px">Cart</div>
-                <div id="cart-items">No items in cart</div>
+                <div class="sec-title" style="margin-bottom:16px">🛒 Cart</div>
+                
+                <div id="cart-items" style="min-height:60px;margin-bottom:14px">
+                  <div style="text-align:center;color:var(--ink3);font-size:13px;padding:20px 0">No items in cart</div>
+                </div>
+                
                 <div class="divider"></div>
-                <div style="display:flex;justify-content:space-between;font-weight:600">
-                  <span>Total</span>
+                
+                <!-- DELIVERY DATE PICKER -->
+                <div style="margin-bottom:18px">
+                  <label style="display:block;font-size:12px;font-weight:600;color:var(--ink2);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px">📅 Delivery Date</label>
+                  <input type="date" id="orderDate" style="width:100%;padding:10px 12px;background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:10px;color:var(--ink);font-size:14px;font-family:inherit" />
+                </div>
+                
+                <!-- TIME SLOT SELECTOR -->
+                <div style="margin-bottom:18px">
+                  <label style="display:block;font-size:12px;font-weight:600;color:var(--ink2);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px">⏰ Time Slot</label>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+                    <button class="slot-btn" onclick="selectSlot('12:40-1:00')" data-slot="12:40-1:00" style="padding:12px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--ink2);font-size:13px;cursor:pointer;transition:all 0.2s;font-weight:500">🌤️ 12:40-1:00</button>
+                    <button class="slot-btn" onclick="selectSlot('1:00-1:20')" data-slot="1:00-1:20" style="padding:12px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--ink2);font-size:13px;cursor:pointer;transition:all 0.2s;font-weight:500">☀️ 1:00-1:20</button>
+                    <button class="slot-btn" onclick="selectSlot('1:20-1:40')" data-slot="1:20-1:40" style="padding:12px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--ink2);font-size:13px;cursor:pointer;transition:all 0.2s;font-weight:500">🌥️ 1:20-1:40</button>
+                    <button class="slot-btn" onclick="selectSlot('1:40-2:00')" data-slot="1:40-2:00" style="padding:12px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--ink2);font-size:13px;cursor:pointer;transition:all 0.2s;font-weight:500">🌤️ 1:40-2:00</button>
+                  </div>
+                  <input type="hidden" id="timeSlot" value="">
+                  <div id="selected-slot" style="font-size:12px;color:var(--cyan);margin-bottom:8px;min-height:18px"></div>
+                </div>
+                
+                <!-- CART TOTAL -->
+                <div style="display:flex;justify-content:space-between;font-weight:600;font-size:16px;color:var(--violet);margin-bottom:16px;padding:12px;background:rgba(124,106,247,0.1);border-radius:10px;border:1px solid rgba(124,106,247,0.2)">
+                  <span>Total Amount</span>
                   <span id="cart-total">₹0</span>
                 </div>
-                <button class="btn btn-primary btn-full" style="margin-top:14px" onclick="placeCartOrder()">Place Order</button>
+                
+                <!-- PLACE ORDER BUTTON -->
+                <button class="btn btn-primary btn-full" style="margin-top:0;font-size:15px;font-weight:600;padding:14px" onclick="placeCartOrder()">✓ Place Order</button>
               </div>
             ` : ''}
           </div>
@@ -2319,6 +2351,29 @@
       qty += delta
       if (qty < 1) qty = 1
       el.textContent = qty
+    }
+
+    function selectSlot(slot) {
+      // Update hidden input
+      document.getElementById('timeSlot').value = slot;
+      
+      // Update all slot buttons
+      document.querySelectorAll('.slot-btn').forEach(btn => {
+        if (btn.getAttribute('data-slot') === slot) {
+          btn.style.background = 'rgba(124, 106, 247, 0.25)';
+          btn.style.borderColor = 'var(--violet)';
+          btn.style.color = 'var(--violet)';
+          btn.style.fontWeight = '600';
+        } else {
+          btn.style.background = 'rgba(255,255,255,0.04)';
+          btn.style.borderColor = 'var(--border)';
+          btn.style.color = 'var(--ink2)';
+          btn.style.fontWeight = '500';
+        }
+      });
+      
+      // Show selected slot info
+      document.getElementById('selected-slot').textContent = `✓ Selected: ${slot}`;
     }
 
     function renderCart() {
@@ -2372,18 +2427,37 @@
         alert("Cart empty")
         return
       }
+      
+      // Get date and time slot
+      const orderDate = document.getElementById('orderDate')?.value;
+      const timeSlot = document.getElementById('timeSlot')?.value;
+      
+      if (!orderDate) {
+        alert("Please select a delivery date");
+        return;
+      }
+      
+      if (!timeSlot) {
+        alert("Please select a delivery time slot");
+        return;
+      }
+      
       const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
       let useWallet = false;
       if (currentBalance >= total) {
         useWallet = await showPaymentChoice(`You have ₹${currentBalance} in your wallet. Choose payment method:`);
       }
       try {
-        const res = await req('POST', '/api/orders', {
+        const orderPayload = {
           items: cart.map(i => ({
             product_id: i.product_id,
-            quantity: i.quantity
-          }))
-        }, { use_wallet: useWallet });
+            quantity: i.quantity,
+          })),
+          scheduled_date: orderDate,
+          time_slot: timeSlot
+        };
+        
+        const res = await req('POST', '/api/orders', orderPayload, { use_wallet: useWallet });
         if (!res.razorpay_order) {
           alert(res.message || `Order completed using wallet`);
           cart = [];
@@ -2663,27 +2737,158 @@
     // ══════════════════════════════════════════
     // ADMIN TABS
     // ══════════════════════════════════════════
-    function renderAdminDashboard(c) {
-      c.innerHTML = `
-        <div class="stat-grid">
-          <div class="stat-tile">
-            <div class="stat-label">Total Users</div>
-            <div class="stat-value">--</div>
+    async function renderAdminDashboard(c) {
+      try {
+        const orders = await req('GET', '/api/orders/admin/');
+        
+        // Get today's date
+        const today = new Date().toISOString().split('T')[0];
+        const todayOrders = orders.filter(o => o.scheduled_date === today);
+        
+        // Group today's orders by time slot
+        const ordersBySlot = {};
+        todayOrders.forEach(o => {
+          const slot = o.time_slot || 'Unscheduled';
+          if (!ordersBySlot[slot]) {
+            ordersBySlot[slot] = [];
+          }
+          ordersBySlot[slot].push(o);
+        });
+        
+        // Sort slots by time
+        const slotOrder = ['12:40-1:00', '1:00-1:20', '1:20-1:40', '1:40-2:00'];
+        const sortedSlots = Object.keys(ordersBySlot).sort((a, b) => {
+          const aIdx = slotOrder.indexOf(a);
+          const bIdx = slotOrder.indexOf(b);
+          return (aIdx === -1 ? 999 : aIdx) - (bIdx === -1 ? 999 : bIdx);
+        });
+        
+        // Calculate stats
+        const totalOrders = orders.length;
+        const pendingOrders = orders.filter(o => o.status === 'pending').length;
+        const completedOrders = orders.filter(o => o.status === 'completed').length;
+        const totalRevenue = orders.reduce((sum, o) => sum + (o.total_price || 0), 0);
+        
+        c.innerHTML = `
+          <!-- STAT TILES -->
+          <div class="stat-grid" style="margin-bottom:28px">
+            <div class="stat-tile" style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3)">
+              <div class="stat-label" style="color:var(--green)">Completed Orders</div>
+              <div class="stat-value" style="color:var(--green)">${completedOrders}</div>
+            </div>
+            <div class="stat-tile" style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3)">
+              <div class="stat-label" style="color:var(--amber)">Pending Orders</div>
+              <div class="stat-value" style="color:var(--amber)">${pendingOrders}</div>
+            </div>
+            <div class="stat-tile" style="background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.3)">
+              <div class="stat-label" style="color:var(--cyan)">Total Orders</div>
+              <div class="stat-value" style="color:var(--cyan)">${totalOrders}</div>
+            </div>
+            <div class="stat-tile" style="background:rgba(124,106,247,0.1);border:1px solid rgba(124,106,247,0.3)">
+              <div class="stat-label" style="color:var(--violet)">Total Revenue</div>
+              <div class="stat-value" style="color:var(--violet)">₹${totalRevenue.toLocaleString('en-IN')}</div>
+            </div>
           </div>
-          <div class="stat-tile">
-            <div class="stat-label">Total Orders</div>
-            <div class="stat-value">--</div>
+          
+          <!-- TODAY'S ORDERS SECTION -->
+          <div style="background:rgba(124,106,247,0.08);border:1px solid rgba(124,106,247,0.2);border-radius:12px;padding:18px;margin-bottom:24px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(124,106,247,0.15)">
+              <div style="font-size:20px;font-weight:700;color:var(--violet)">📅 Today's Orders (${today})</div>
+              <span style="background:rgba(124,106,247,0.3);color:var(--violet);padding:6px 14px;border-radius:8px;font-size:14px;font-weight:600">${todayOrders.length} Orders</span>
+            </div>
+            
+            ${todayOrders.length === 0 
+              ? `<div style="text-align:center;color:var(--ink3);padding:20px;font-size:14px">No orders scheduled for today</div>`
+              : `
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+                  ${sortedSlots.map(slot => {
+                    const slotOrders = ordersBySlot[slot];
+                    const pendingCount = slotOrders.filter(o => o.status === 'pending').length;
+                    const completedCount = slotOrders.filter(o => o.status === 'completed').length;
+                    
+                    return `
+                      <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:14px">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                          <div>
+                            <div style="font-size:14px;font-weight:700;color:var(--cyan)">⏰ ${slot}</div>
+                            <div style="font-size:11px;color:var(--ink3);margin-top:2px">${slotOrders.length} order${slotOrders.length !== 1 ? 's' : ''}</div>
+                          </div>
+                          <div style="text-align:right">
+                            <div style="display:inline-block;background:rgba(16,185,129,0.2);color:var(--green);padding:4px 10px;border-radius:6px;font-size:10px;font-weight:600;margin-right:4px">✓ ${completedCount}</div>
+                            <div style="display:inline-block;background:rgba(245,158,11,0.2);color:var(--amber);padding:4px 10px;border-radius:6px;font-size:10px;font-weight:600">⏳ ${pendingCount}</div>
+                          </div>
+                        </div>
+                        
+                        <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:10px">
+                          ${slotOrders.map(o => `
+                            <div style="font-size:11px;margin-bottom:6px;padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;display:flex;justify-content:space-between;align-items:center">
+                              <div>
+                                <div style="color:var(--ink);font-weight:600">Order #${o.order_id}</div>
+                                <div style="color:var(--ink3);font-size:10px;margin-top:2px">${o.username || 'User'} • ₹${o.total_price}</div>
+                              </div>
+                              <div style="background:${o.status === 'pending' ? 'rgba(245,158,11,0.2);color:var(--amber)' : 'rgba(16,185,129,0.2);color:var(--green)'};padding:3px 8px;border-radius:4px;font-size:9px;font-weight:600;white-space:nowrap">${o.status.toUpperCase()}</div>
+                            </div>
+                          `).join('')}
+                        </div>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              `
+            }
           </div>
-          <div class="stat-tile">
-            <div class="stat-label">Revenue</div>
-            <div class="stat-value">--</div>
+          
+          <!-- ALL ORDERS BY DATE SECTION -->
+          <div style="background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.2);border-radius:12px;padding:18px">
+            <div style="font-size:18px;font-weight:700;color:var(--cyan);margin-bottom:16px">📋 All Orders by Date</div>
+            
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">
+              ${(() => {
+                const ordersByDate = {};
+                orders.forEach(o => {
+                  const date = o.scheduled_date || 'No Date';
+                  if (!ordersByDate[date]) {
+                    ordersByDate[date] = [];
+                  }
+                  ordersByDate[date].push(o);
+                });
+                
+                const sortedDates = Object.keys(ordersByDate).sort().reverse();
+                return sortedDates.slice(0, 10).map(date => {
+                  const dateOrders = ordersByDate[date];
+                  const dateObj = date === 'No Date' ? new Date() : new Date(date + 'T00:00:00');
+                  const dateStr = date === 'No Date' ? 'Unscheduled' : dateObj.toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' });
+                  const pending = dateOrders.filter(o => o.status === 'pending').length;
+                  const completed = dateOrders.filter(o => o.status === 'completed').length;
+                  
+                  return `
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:14px">
+                      <div style="font-size:13px;font-weight:700;color:var(--cyan);margin-bottom:10px">${dateStr}</div>
+                      <div style="display:flex;gap:8px;margin-bottom:10px">
+                        <div style="flex:1;background:rgba(16,185,129,0.2);padding:8px;border-radius:6px;text-align:center">
+                          <div style="font-size:16px;font-weight:700;color:var(--green)">${completed}</div>
+                          <div style="font-size:9px;color:var(--ink3)">Completed</div>
+                        </div>
+                        <div style="flex:1;background:rgba(245,158,11,0.2);padding:8px;border-radius:6px;text-align:center">
+                          <div style="font-size:16px;font-weight:700;color:var(--amber)">${pending}</div>
+                          <div style="font-size:9px;color:var(--ink3)">Pending</div>
+                        </div>
+                      </div>
+                      <div style="font-size:12px;color:var(--ink2);font-weight:600;padding-top:10px;border-top:1px solid rgba(255,255,255,0.1)">${dateOrders.length} total</div>
+                    </div>
+                  `;
+                }).join('');
+              })()}
+            </div>
           </div>
-        </div>
-        <div class="card card-pad">
-          <div class="sec-title">Admin Insights</div>
-          <p style="color:var(--ink2)">Advanced analytics coming soon 🚀</p>
-        </div>
-      `;
+          
+          <div style="margin-top:20px;text-align:center">
+            <button onclick="switchTab('admin-orders')" style="padding:12px 24px;background:rgba(124,106,247,0.2);border:1px solid var(--violet);color:var(--violet);border-radius:10px;cursor:pointer;font-weight:600;transition:all 0.2s">View Full Order Management →</button>
+          </div>
+        `;
+      } catch (e) {
+        c.innerHTML = `<div class="alert alert-error">Error loading dashboard: ${e.message}</div>`;
+      }
     }
 
     async function renderAdminProducts(c) {
@@ -2711,18 +2916,92 @@
     async function renderAdminOrders(c) {
       try {
         const orders = await req('GET', '/api/orders/admin/');
+        
+        // Group orders by scheduled_date
+        const ordersByDate = {};
+        orders.forEach(o => {
+          const date = o.scheduled_date || 'No Date';
+          if (!ordersByDate[date]) {
+            ordersByDate[date] = [];
+          }
+          ordersByDate[date].push(o);
+        });
+        
+        // Sort dates
+        const sortedDates = Object.keys(ordersByDate).sort();
+        
+        if (sortedDates.length === 0) {
+          c.innerHTML = `<div class="alert alert-info">No orders yet</div>`;
+          return;
+        }
+        
         c.innerHTML = `
-          <div class="sec-title">Manage Orders</div>
-          ${orders.map(o => `
-            <div class="card card-pad" style="margin-bottom:10px">
-              <div>Order #${o.order_id} - ₹${o.total_price}</div>
-              <div>Status: ${o.status}</div>
-              ${o.status === 'pending' ? `
-                <button onclick="updateOrderStatus(${o.order_id}, 'completed')" class="btn btn-sm">Approve</button>
-                <button onclick="updateOrderStatus(${o.order_id}, 'cancelled')" class="btn btn-danger btn-sm">Cancel</button>
-              ` : ''}
+          <div>
+            <div class="sec-head" style="margin-bottom:20px">
+              <div class="sec-title">📦 Manage Orders by Date</div>
+              <span class="count-tag">${orders.length} total orders</span>
             </div>
-          `).join('')}
+            
+            ${sortedDates.map(date => {
+              const dateOrders = ordersByDate[date];
+              const dateObj = date === 'No Date' 
+                ? new Date() 
+                : new Date(date + 'T00:00:00');
+              const dateStr = date === 'No Date' 
+                ? 'Unscheduled' 
+                : dateObj.toLocaleDateString('en-IN', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+              
+              return `
+                <div style="margin-bottom:24px;background:rgba(124,106,247,0.08);border:1px solid rgba(124,106,247,0.2);border-radius:12px;padding:16px;overflow:hidden">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid rgba(124,106,247,0.15)">
+                    <div>
+                      <div style="font-size:18px;font-weight:700;color:var(--violet)">📅 ${dateStr}</div>
+                      <div style="font-size:12px;color:var(--ink3);margin-top:4px">${dateOrders.length} order${dateOrders.length !== 1 ? 's' : ''} scheduled</div>
+                    </div>
+                    <div style="text-align:right">
+                      <div style="font-size:24px;font-weight:700;color:var(--cyan)">${dateOrders.length}</div>
+                      <div style="font-size:11px;color:var(--ink3)">Orders</div>
+                    </div>
+                  </div>
+                  
+                  <div style="display:grid;grid-template-columns:1fr;gap:10px">
+                    ${dateOrders.map(o => {
+                      const statusColor = o.status === 'completed' ? 'var(--green)' : o.status === 'cancelled' ? 'var(--red)' : 'var(--amber)';
+                      const statusBg = o.status === 'completed' ? 'rgba(16,185,129,0.15)' : o.status === 'cancelled' ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)';
+                      
+                      return `
+                        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:center">
+                          <div>
+                            <div style="font-size:13px;font-weight:600;color:var(--ink)">Order #${o.order_id}</div>
+                            <div style="font-size:11px;color:var(--ink3);margin-top:4px">₹${o.total_price.toLocaleString('en-IN')}</div>
+                            <div style="font-size:11px;color:var(--ink3);margin-top:2px">${o.username || 'Unknown User'}</div>
+                          </div>
+                          
+                          <div>
+                            <div style="font-size:12px;color:var(--ink2);margin-bottom:4px"><strong>⏰ Slot:</strong></div>
+                            <div style="font-size:13px;font-weight:600;color:var(--cyan)">${o.time_slot || '—'}</div>
+                            <div style="font-size:11px;color:var(--ink3);margin-top:6px"><strong>📦 Items:</strong> ${o.items ? o.items.length : '—'}</div>
+                          </div>
+                          
+                          <div style="text-align:right">
+                            <div style="display:inline-block;padding:6px 12px;background:${statusBg};border-radius:8px;font-size:12px;font-weight:600;color:${statusColor};margin-bottom:8px">${o.status.toUpperCase()}</div>
+                            <div style="display:flex;gap:6px;flex-direction:column">
+                              ${o.status === 'pending' ? `
+                                <button onclick="updateOrderStatus(${o.order_id}, 'completed')" style="padding:6px 12px;background:rgba(16,185,129,0.2);border:1px solid var(--green);color:var(--green);border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;transition:all 0.2s">✓ Approve</button>
+                                <button onclick="updateOrderStatus(${o.order_id}, 'cancelled')" style="padding:6px 12px;background:rgba(239,68,68,0.2);border:1px solid var(--red);color:var(--red);border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;transition:all 0.2s">✕ Cancel</button>
+                              ` : `
+                                <span style="font-size:11px;color:var(--ink3)">—</span>
+                              `}
+                            </div>
+                          </div>
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
         `;
       } catch (e) {
         c.innerHTML = `<div class="alert alert-error">Error: ${e.message}</div>`;
